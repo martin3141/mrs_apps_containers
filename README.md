@@ -20,7 +20,7 @@ apptainer exec mrs_apps.sif Rscript MY_RSCRIPT.R
 
 For non-trival tasks, this command should be embedded in a SLURM jobfile and submitted to the cluster in the usual way with the `sbatch` command.
 
-Once built with the above method, R package versions are fixed within the container. R packages can be updated after the build process, but will be installed into the R user library on the host. The user library path is set to $HOME/R/apptainer/PLATFORM_R-VERSION and will take precedence over the containerised versions.
+Once built with the above method, R package versions are fixed within the container. R packages may be updated after the build process, but will be installed into the R user library on the host. The user library path is set to $HOME/R/apptainer/PLATFORM_R-VERSION and will take precedence over the containerised versions.
 
 To update to the latest stable spant version :
 
@@ -29,6 +29,7 @@ To update to the latest stable spant version :
 To update to the latest development version :
 
 `apptainer exec mrs_apps.sif Rscript -e "remotes::install_github('martin3141/spant', ref = 'devel', dependencies = TRUE)"`
+
 
 
 
