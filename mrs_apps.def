@@ -1,0 +1,61 @@
+BootStrap: docker
+From: ubuntu:24.04
+
+%post
+    # store build date and time
+    NOW=`date '+%F_%H-%M-%S'`
+    echo "export NOW=\"${NOW}\"" >> $APPTAINER_ENVIRONMENT
+
+    # install a recent version of R (default Ubuntu repositories are usually outdated)
+    apt-get update
+    apt-get -y install wget
+    wget -qO- https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc | \
+       tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc
+    echo "deb https://cloud.r-project.org/bin/linux/ubuntu noble-cran40/" >> \
+       /etc/apt/sources.list
+    apt-get update
+   
+    # install R package dependencies
+    apt-get -y install r-base r-base-dev cmake libcurl4-openssl-dev libssl-dev \
+       libxml2-dev libfontconfig1-dev git libgit2-dev libharfbuzz-dev libfribidi-dev \
+       libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev libwebp-dev pandoc
+
+    # compile R packages - this takes a long time...
+    Rscript -e 'install.packages(c("spant", "remotes", "tidyverse"), dependencies = TRUE, repos="https://cloud.r-project.org")'
+
+    # install Linux Intel (x86_64) version of micromamba for slected FSL components
+    apt-get -y install curl bzip2
+    curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/latest | tar -xvj bin/micromamba
+
+    # install FSL dependencies
+    apt-get -y install dc
+
+    micromamba create                                             \
+      --yes                                                       \
+      -c https://fsl.fmrib.ox.ac.uk/fsldownloads/fslconda/public/ \
+      -c conda-forge                                              \
+      -p usr/local/fsl                                            \
+      fsl-bet2 fsl-flirt fsl-data_standard fsl-fast4
+
+%environment
+    export LC_ALL=C
+
+    # FSL Setup
+    FSLDIR=/usr/local/fsl
+    # following is not recommended to avoid problems with calling the FSL python, see:
+    # https://fsl.fmrib.ox.ac.uk/fsl/docs/install/configuration.html#fsl-configuration-bashdashzshshksh
+    # however the partial conda based method of install does not provde wrappers in
+    # ${FSLDIR}/share/fsl/bin - so this is a simple workaround required for fslr
+    PATH=${FSLDIR}/bin:${PATH} 
+    export FSLDIR PATH
+    . ${FSLDIR}/etc/fslconf/fsl.sh
+
+    # R user library is set to $HOME/R/apptainer/PLATFORM_R-VERSION
+    PLATVER=`Rscript -e "cat(paste0(version[['platform']], '_' ,version[['major']], '.', version[['minor']]))"`
+    export R_LIBS_USER=$HOME/R/apptainer/$PLATVER
+    mkdir -p $R_LIBS_USER
+
+%runscript
+    echo "Container was created $NOW"
+    echo "Arguments received: $*"
+    exec echo "$@"
