@@ -18,7 +18,27 @@ The build process takes around 40 minutes (mainly due to need to compile R libra
 apptainer exec mrs_apps.sif Rscript MY_RSCRIPT.R
 ```
 
-For non-trival tasks, this command should be embedded in a SLURM jobfile and submitted to the cluster in the usual way with the `sbatch` command.
+For non-trival tasks, this command should be embedded in a Slurm job script and submitted to the cluster in the usual way with the `sbatch` command. See below for an example job script :
+
+```
+#!/bin/bash
+
+#SBATCH --ntasks 4
+#SBATCH --nodes 1
+#SBATCH --cpus-per-task 1
+#
+#              d-hh:mm:ss
+#SBATCH --time 0-01:00:00
+#
+#SBATCH --account MY_ACCOUNT
+#SBATCH --qos bbdefault
+
+set -e
+
+module purge; module load bluebear
+
+apptainer exec mrs_apps.sif Rscript MY_RSCRIPT.R
+```
 
 Once built with the above method, R package versions are fixed within the container. R packages may be updated after the build process, but will be installed into the R user library on the host. The user library path is set to $HOME/R/apptainer/PLATFORM_R-VERSION and will take precedence over the containerised versions.
 
@@ -29,6 +49,7 @@ To update to the latest stable spant version :
 To update to the latest development version :
 
 `apptainer exec mrs_apps.sif Rscript -e "remotes::install_github('martin3141/spant', ref = 'devel', dependencies = TRUE)"`
+
 
 
 
