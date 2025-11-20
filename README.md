@@ -6,7 +6,11 @@
 
 To build on UOB HPC facilities [BlueBEAR](https://www.birmingham.ac.uk/research/arc/bear/bluebear) :
 
-`sbatch build_mrs_apps_bear.sh`
+```
+wget https://github.com/martin3141/mrs_apps_containers/raw/refs/heads/main/mrs_apps.def
+wget https://github.com/martin3141/mrs_apps_containers/raw/refs/heads/main/build_mrs_apps_bear.sh
+sbatch build_mrs_apps_bear.sh
+```
 
 takes around 40 minutes due to need to compile R libraries on Linux.
 
@@ -19,5 +23,6 @@ To update to the latest stable spant version :
 To update to the latest development version :
 
 `apptainer exec mrs_apps.sif Rscript -e "remotes::install_github('martin3141/spant', ref = 'devel', dependencies = TRUE)"`
+
 
 
