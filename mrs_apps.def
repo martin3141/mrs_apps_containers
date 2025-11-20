@@ -23,7 +23,7 @@ From: ubuntu:24.04
     # compile R packages - this takes a long time...
     Rscript -e 'install.packages(c("spant", "remotes", "tidyverse"), dependencies = TRUE, repos="https://cloud.r-project.org")'
 
-    # install Linux Intel (x86_64) version of micromamba for slected FSL components
+    # install Linux Intel (x86_64) version of micromamba for selected FSL components
     apt-get -y install curl bzip2
     curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/latest | tar -xvj bin/micromamba
 
